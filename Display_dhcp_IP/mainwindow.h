@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include<poll.h>
 #include <thread>
 #include <chrono>
 #include <netdb.h>
@@ -47,7 +48,9 @@
 #define SYSFS_GPIO_RST_VAL_3 "/sys/class/gpio/gpio24/value"
 #define SYSFS_GPIO_RST_VAL_4 "/sys/class/gpio/gpio25/value"
 #define SYSFS_GPIO_RST_VAL_5 "/sys/class/gpio/gpio28/value"
+#define SYSFS_GPIO_RST_EDGE_5 "/sys/class/gpio/gpio28/edge"
 #define SYSFS_GPIO_RST_VAL_6 "/sys/class/gpio/gpio29/value"
+#define SYSFS_GPIO_RST_EDGE_6 "/sys/class/gpio/gpio29/edge"
 #define SYSFS_GPIO_RST_VAL_7 "/sys/class/gpio/gpio30/value"
 #define SYSFS_GPIO_RST_VAL_8 "/sys/class/gpio/gpio31/value"
 #define SYSFS_GPIO_RST_VAL_H "1"

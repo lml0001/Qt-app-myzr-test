@@ -31,7 +31,7 @@ QString get_ip(const char *ifname)
     return QString(inet_ntoa(sin->sin_addr));
 
 }
-int gpio_switch[8];
+int gpio_value[8];
 void init_gpio_switch()
 {
     int fd;
@@ -41,7 +41,7 @@ void init_gpio_switch()
     fd = open(SYSFS_GPIO_RST_DIR_1, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
     close(fd);
-    gpio_switch[1 - 1] = open(SYSFS_GPIO_RST_VAL_1, O_RDWR);
+    gpio_value[1 - 1] = open(SYSFS_GPIO_RST_VAL_1, O_RDWR);
 
     fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_PIN_VAL_2 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_2));
@@ -49,7 +49,7 @@ void init_gpio_switch()
     fd = open(SYSFS_GPIO_RST_DIR_2, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
     close(fd);
-    gpio_switch[2 - 1] = open(SYSFS_GPIO_RST_VAL_2, O_RDWR);
+    gpio_value[2 - 1] = open(SYSFS_GPIO_RST_VAL_2, O_RDWR);
 
     fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_PIN_VAL_3 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_3));
@@ -57,7 +57,7 @@ void init_gpio_switch()
     fd = open(SYSFS_GPIO_RST_DIR_3, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
     close(fd);
-    gpio_switch[3 - 1] = open(SYSFS_GPIO_RST_VAL_3, O_RDWR);
+    gpio_value[3 - 1] = open(SYSFS_GPIO_RST_VAL_3, O_RDWR);
 
     fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_PIN_VAL_4 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_4));
@@ -65,7 +65,7 @@ void init_gpio_switch()
     fd = open(SYSFS_GPIO_RST_DIR_4, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
     close(fd);
-    gpio_switch[4 - 1] = open(SYSFS_GPIO_RST_VAL_4, O_RDWR);
+    gpio_value[4 - 1] = open(SYSFS_GPIO_RST_VAL_4, O_RDWR);
 
     fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_PIN_VAL_5 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_5));
@@ -73,7 +73,46 @@ void init_gpio_switch()
     fd = open(SYSFS_GPIO_RST_DIR_5, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_DIR_VAL_IN, sizeof(SYSFS_GPIO_RST_DIR_VAL_IN));
     close(fd);
-    gpio_switch[5 - 1] = open(SYSFS_GPIO_RST_VAL_5, O_RDWR);
+    gpio_value[5 - 1] = open(SYSFS_GPIO_RST_VAL_5, O_RDONLY);
+    fd = open(SYSFS_GPIO_RST_EDGE_5,O_WRONLY);
+    write(fd, "rising", strlen("rising"));
+    close(fd);
+    std::thread interrupt_loop_dio1([]{
+    struct pollfd fds[1];
+    fds[0].fd = gpio_value[5 - 1];
+    fds[0].events  = POLLPRI;
+    while(1)
+    {
+        int ret;
+        char buff[256];
+        ret = poll(fds,1,-1);
+        std::cout<<"poll(fds,1,-1)"<<std::endl;
+        if( ret == -1 )
+        {
+
+        }
+        if( fds[0].revents & POLLPRI)
+        {
+            ret = lseek(gpio_value[5 - 1],0,SEEK_SET);
+            if( ret == -1 )
+            {
+
+            }
+            std::cout<<"#########gpio5_value########"<<std::endl;
+            do
+            {
+                ret = read(gpio_value[5 - 1],buff,256);
+                std::cout<<"read ret: "<<ret<<std::endl;
+            }while(ret != 0);
+            if( ret == -1 )
+            {
+
+            }
+            std::cout<<"read(gpio_value[5 - 1],buff,1)"<<std::endl;
+        }
+    }
+    });
+    interrupt_loop_dio1.detach();
 
     fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_PIN_VAL_6 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_6));
@@ -81,7 +120,46 @@ void init_gpio_switch()
     fd = open(SYSFS_GPIO_RST_DIR_6, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_DIR_VAL_IN, sizeof(SYSFS_GPIO_RST_DIR_VAL_IN));
     close(fd);
-    gpio_switch[6 - 1] = open(SYSFS_GPIO_RST_VAL_6, O_RDWR);
+    gpio_value[6 - 1] = open(SYSFS_GPIO_RST_VAL_6, O_RDONLY);
+    fd = open(SYSFS_GPIO_RST_EDGE_6,O_WRONLY);
+    write(fd, "rising", strlen("rising"));
+    close(fd);
+    std::thread interrupt_loop_dio2([]{
+    struct pollfd fds[1];
+    fds[0].fd = gpio_value[6 - 1];
+    fds[0].events  = POLLPRI;
+    while(1)
+    {
+        int ret;
+        char buff[256];
+        ret = poll(fds,1,-1);
+        std::cout<<"poll(fds,1,-1)"<<std::endl;
+        if( ret == -1 )
+        {
+
+        }
+        if( fds[0].revents & POLLPRI)
+        {
+            ret = lseek(gpio_value[6 - 1],0,SEEK_SET);
+            if( ret == -1 )
+            {
+
+            }
+            std::cout<<"#########gpio6_value########"<<std::endl;
+            do
+            {
+                ret = read(gpio_value[6 - 1],buff,256);
+                std::cout<<"read ret: "<<ret<<std::endl;
+            }while(ret != 0);
+            if( ret == -1 )
+            {
+
+            }
+            std::cout<<"read(gpio_value[6 - 1],buff,1)"<<std::endl;
+        }
+    }
+    });
+    interrupt_loop_dio2.detach();
 
     fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_PIN_VAL_7 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_7));
@@ -89,7 +167,7 @@ void init_gpio_switch()
     fd = open(SYSFS_GPIO_RST_DIR_7, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
     close(fd);
-    gpio_switch[7 - 1] = open(SYSFS_GPIO_RST_VAL_7, O_RDWR);
+    gpio_value[7 - 1] = open(SYSFS_GPIO_RST_VAL_7, O_RDWR);
 
     fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_PIN_VAL_8 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_8));
@@ -97,17 +175,17 @@ void init_gpio_switch()
     fd = open(SYSFS_GPIO_RST_DIR_8, O_WRONLY);
     write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
     close(fd);
-    gpio_switch[8 - 1] = open(SYSFS_GPIO_RST_VAL_8, O_RDWR);
-    write(gpio_switch[5 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+    gpio_value[8 - 1] = open(SYSFS_GPIO_RST_VAL_8, O_RDWR);
+    write(gpio_value[7 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    write(gpio_switch[5 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
+    write(gpio_value[7 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    write(gpio_switch[5 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
-    write(gpio_switch[6 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+    write(gpio_value[7 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+    write(gpio_value[8 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    write(gpio_switch[6 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
+    write(gpio_value[8 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    write(gpio_switch[6 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+    write(gpio_value[8 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
 
 }
 int wdgflag = 0;
@@ -174,42 +252,42 @@ void MainWindow::timerEvent(QTimerEvent *event)
             if(chnstatus[1]&chnmask<<(1 - 1))
             {
                 ui->label_1->setStyleSheet("QLabel{background-color:rgb(0,255,0);}");
-                write(gpio_switch[1 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+                write(gpio_value[1 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
             }
             else
             {
                 ui->label_1->setStyleSheet("QLabel{background-color:rgb(255,0,0);}");
-                write(gpio_switch[1 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
+                write(gpio_value[1 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
             }
             if(chnstatus[1]&chnmask<<(2 - 1))
             {
                 ui->label_2->setStyleSheet("QLabel{background-color:rgb(0,255,0);}");
-                write(gpio_switch[2 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+                write(gpio_value[2 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
             }
             else
             {
                 ui->label_2->setStyleSheet("QLabel{background-color:rgb(255,0,0);}");
-                write(gpio_switch[2 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
+                write(gpio_value[2 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
             }
             if(chnstatus[1]&chnmask<<(3 - 1))
             {
                 ui->label_3->setStyleSheet("QLabel{background-color:rgb(0,255,0);}");
-                write(gpio_switch[3 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+                write(gpio_value[3 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
             }
             else
             {
                 ui->label_3->setStyleSheet("QLabel{background-color:rgb(255,0,0);}");
-                write(gpio_switch[3 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
+                write(gpio_value[3 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
             }
             if(chnstatus[1]&chnmask<<(4 - 1))
             {
                 ui->label_4->setStyleSheet("QLabel{background-color:rgb(0,255,0);}");
-                write(gpio_switch[4 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+                write(gpio_value[4 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
             }
             else
             {
                 ui->label_4->setStyleSheet("QLabel{background-color:rgb(255,0,0);}");
-                write(gpio_switch[4 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
+                write(gpio_value[4 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
             }
 
         }
