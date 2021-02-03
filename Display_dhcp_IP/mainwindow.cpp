@@ -99,10 +99,14 @@ void init_gpio_switch()
     close(fd);
     gpio_switch[8 - 1] = open(SYSFS_GPIO_RST_VAL_8, O_RDWR);
     write(gpio_switch[5 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     write(gpio_switch[5 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     write(gpio_switch[5 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
     write(gpio_switch[6 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     write(gpio_switch[6 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     write(gpio_switch[6 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
 
 }
