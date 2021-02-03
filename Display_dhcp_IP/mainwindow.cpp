@@ -98,6 +98,12 @@ void init_gpio_switch()
     write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
     close(fd);
     gpio_switch[8 - 1] = open(SYSFS_GPIO_RST_VAL_8, O_RDWR);
+    write(gpio_switch[5 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+    write(gpio_switch[5 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
+    write(gpio_switch[5 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+    write(gpio_switch[6 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+    write(gpio_switch[6 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
+    write(gpio_switch[6 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
 
 }
 int wdgflag = 0;
