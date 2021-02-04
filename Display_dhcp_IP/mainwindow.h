@@ -1,12 +1,15 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include<poll.h>
+#include <linux/types.h>
+#include <linux/spi/spidev.h>
+#include <poll.h>
 #include <thread>
 #include <chrono>
 #include <netdb.h>
@@ -55,6 +58,7 @@
 #define SYSFS_GPIO_RST_VAL_8 "/sys/class/gpio/gpio31/value"
 #define SYSFS_GPIO_RST_VAL_H "1"
 #define SYSFS_GPIO_RST_VAL_L "0"
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 namespace Ui {
 class MainWindow;

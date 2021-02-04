@@ -32,6 +32,12 @@ QString get_ip(const char *ifname)
 
 }
 int gpio_value[8];
+int spi_dev[2];
+const char spi_devicename[2][32] = {"/dev/spidev0.0","/dev/spidev1.0"};
+uint8_t mode = 0;
+uint8_t bits = 8;
+uint32_t speed = 500000;
+uint16_t delay = 0;
 void init_gpio_switch()
 {
     int fd;
@@ -86,7 +92,6 @@ void init_gpio_switch()
         int ret;
         char buff[256];
         ret = poll(fds,1,-1);
-        std::cout<<"poll(fds,1,-1)"<<std::endl;
         if( ret == -1 )
         {
 
@@ -102,13 +107,11 @@ void init_gpio_switch()
             do
             {
                 ret = read(gpio_value[5 - 1],buff,256);
-                std::cout<<"read ret: "<<ret<<std::endl;
             }while(ret != 0);
             if( ret == -1 )
             {
 
             }
-            std::cout<<"read(gpio_value[5 - 1],buff,1)"<<std::endl;
         }
     }
     });
@@ -133,7 +136,6 @@ void init_gpio_switch()
         int ret;
         char buff[256];
         ret = poll(fds,1,-1);
-        std::cout<<"poll(fds,1,-1)"<<std::endl;
         if( ret == -1 )
         {
 
@@ -149,13 +151,11 @@ void init_gpio_switch()
             do
             {
                 ret = read(gpio_value[6 - 1],buff,256);
-                std::cout<<"read ret: "<<ret<<std::endl;
             }while(ret != 0);
             if( ret == -1 )
             {
 
             }
-            std::cout<<"read(gpio_value[6 - 1],buff,1)"<<std::endl;
         }
     }
     });
@@ -188,6 +188,86 @@ void init_gpio_switch()
     write(gpio_value[8 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
 
 }
+void init_sx1278_spi()
+{
+    int ret = 0;
+    spi_dev[0] = open(spi_devicename[1], O_RDWR);
+    if (spi_dev[0] < 0)
+    {
+
+    }
+    /*
+     * spi mode
+     */
+    ret = ioctl(spi_dev[0], SPI_IOC_WR_MODE, &mode);
+    if (ret == -1)
+    {
+
+    }
+
+    ret = ioctl(spi_dev[0], SPI_IOC_RD_MODE, &mode);
+    if (ret == -1)
+    {
+
+    }
+    /*
+     * bits per word
+     */
+    ret = ioctl(spi_dev[0], SPI_IOC_WR_BITS_PER_WORD, &bits);
+    if (ret == -1)
+    {
+
+    }
+
+    ret = ioctl(spi_dev[0], SPI_IOC_RD_BITS_PER_WORD, &bits);
+    if (ret == -1)
+    {
+
+    }
+    /*
+     * max speed hz
+     */
+    ret = ioctl(spi_dev[0], SPI_IOC_WR_MAX_SPEED_HZ, &speed);
+    if (ret == -1)
+    {
+
+    }
+
+    ret = ioctl(spi_dev[0], SPI_IOC_RD_MAX_SPEED_HZ, &speed);
+    if (ret == -1)
+    {
+
+    }
+    std::cout<<"spi mode: "<<mode<<std::endl;
+    std::cout<<"bits per word: "<<bits<<std::endl;
+    std::cout<<"max speed: "<<speed<<"Hz"<<std::endl;
+
+}
+std::string get_sx1278_chipid(int spi_fd)
+{
+    int ret;
+    uint8_t tx[] = {
+        0x42&0x7f, 0xFF
+    };
+    uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+    struct spi_ioc_transfer tr;  /* 这种写法一定要赋初值 */
+    memset(&tr,0,sizeof(struct spi_ioc_transfer));
+    tr.tx_buf = (unsigned long)tx;
+    tr.rx_buf = (unsigned long)rx;
+    tr.len = ARRAY_SIZE(tx);
+    tr.delay_usecs = delay;
+    tr.speed_hz = speed;
+    tr.bits_per_word = bits;
+    ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
+    if (ret < 1)
+    {
+
+    }
+    char chipid_str[16];
+    snprintf(chipid_str,tr.len,"%.2x",(char *)rx);
+    std::string chipid(chipid_str);
+    return chipid;
+}
 int wdgflag = 0;
 
 MainWindow::MainWindow(QWidget *parent,QApplication *a) :
@@ -200,6 +280,9 @@ MainWindow::MainWindow(QWidget *parent,QApplication *a) :
     ui->setupUi(this);
     qDebug() << QSqlDatabase::drivers();//打印qt支持的数据库类型
     init_gpio_switch();
+    init_sx1278_spi();
+    std::string chipid = get_sx1278_chipid(spi_dev[0]);
+    std::cout<<"spi_dev0 chipid: "<<chipid<<std::endl;
     db = QSqlDatabase::addDatabase("QMYSQL");
     db.setHostName("rm-2vcyj9v8ozxj7b2m4to.mysql.cn-chengdu.rds.aliyuncs.com");
     db.setDatabaseName("ejcdb");
