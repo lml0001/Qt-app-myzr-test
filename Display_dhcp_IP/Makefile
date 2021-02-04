@@ -33,7 +33,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = Display_dhcp_IP1.0.0
-DISTDIR = /home/lumenle/Display_dhcp_IP/.tmp/Display_dhcp_IP1.0.0
+DISTDIR = /home/lumenle/myzr/Qt-app-myzr-test/Display_dhcp_IP/.tmp/Display_dhcp_IP1.0.0
 LINK          = arm-linux-gnueabihf-g++
 LFLAGS        = -Wl,-O1 -Wl,-rpath,/usr/local/QtEmbedded-5.6.0-arm/lib
 LIBS          = $(SUBLIBS) -L/usr/local/QtEmbedded-5.6.0-arm/lib -lQt5Widgets -lQt5Gui -lQt5Sql -lQt5Core -lpthread 
@@ -651,7 +651,7 @@ moc_mainwindow.cpp: /usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/QMainWindo
 		/usr/local/QtEmbedded-5.6.0-arm/include/QtGui/qguiapplication.h \
 		/usr/local/QtEmbedded-5.6.0-arm/include/QtGui/qinputmethod.h \
 		mainwindow.h
-	/usr/local/QtEmbedded-5.6.0-arm/bin/moc $(DEFINES) -I/usr/local/QtEmbedded-5.6.0-arm/mkspecs/linux-arm-gnueabi-g++ -I/home/lumenle/Display_dhcp_IP -I/usr/local/QtEmbedded-5.6.0-arm/include -I/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets -I/usr/local/QtEmbedded-5.6.0-arm/include/QtGui -I/usr/local/QtEmbedded-5.6.0-arm/include/QtSql -I/usr/local/QtEmbedded-5.6.0-arm/include/QtCore -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/5.3.1 -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/5.3.1/arm-linux-gnueabihf -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/5.3.1/backward -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/5.3.1/include -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/5.3.1/include-fixed -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/libc/usr/include mainwindow.h -o moc_mainwindow.cpp
+	/usr/local/QtEmbedded-5.6.0-arm/bin/moc $(DEFINES) -I/usr/local/QtEmbedded-5.6.0-arm/mkspecs/linux-arm-gnueabi-g++ -I/home/lumenle/myzr/Qt-app-myzr-test/Display_dhcp_IP -I/usr/local/QtEmbedded-5.6.0-arm/include -I/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets -I/usr/local/QtEmbedded-5.6.0-arm/include/QtGui -I/usr/local/QtEmbedded-5.6.0-arm/include/QtSql -I/usr/local/QtEmbedded-5.6.0-arm/include/QtCore -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/5.3.1 -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/5.3.1/arm-linux-gnueabihf -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/5.3.1/backward -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/5.3.1/include -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/5.3.1/include-fixed -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/libc/usr/include mainwindow.h -o moc_mainwindow.cpp
 
 moc_watchdogthread.cpp: /usr/local/QtEmbedded-5.6.0-arm/include/QtCore/QObject \
 		/usr/local/QtEmbedded-5.6.0-arm/include/QtCore/qobject.h \
@@ -767,7 +767,7 @@ moc_watchdogthread.cpp: /usr/local/QtEmbedded-5.6.0-arm/include/QtCore/QObject \
 		/usr/local/QtEmbedded-5.6.0-arm/include/QtGui/qguiapplication.h \
 		/usr/local/QtEmbedded-5.6.0-arm/include/QtGui/qinputmethod.h \
 		watchdogthread.h
-	/usr/local/QtEmbedded-5.6.0-arm/bin/moc $(DEFINES) -I/usr/local/QtEmbedded-5.6.0-arm/mkspecs/linux-arm-gnueabi-g++ -I/home/lumenle/Display_dhcp_IP -I/usr/local/QtEmbedded-5.6.0-arm/include -I/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets -I/usr/local/QtEmbedded-5.6.0-arm/include/QtGui -I/usr/local/QtEmbedded-5.6.0-arm/include/QtSql -I/usr/local/QtEmbedded-5.6.0-arm/include/QtCore -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/5.3.1 -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/5.3.1/arm-linux-gnueabihf -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/5.3.1/backward -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/5.3.1/include -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/5.3.1/include-fixed -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/libc/usr/include watchdogthread.h -o moc_watchdogthread.cpp
+	/usr/local/QtEmbedded-5.6.0-arm/bin/moc $(DEFINES) -I/usr/local/QtEmbedded-5.6.0-arm/mkspecs/linux-arm-gnueabi-g++ -I/home/lumenle/myzr/Qt-app-myzr-test/Display_dhcp_IP -I/usr/local/QtEmbedded-5.6.0-arm/include -I/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets -I/usr/local/QtEmbedded-5.6.0-arm/include/QtGui -I/usr/local/QtEmbedded-5.6.0-arm/include/QtSql -I/usr/local/QtEmbedded-5.6.0-arm/include/QtCore -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/5.3.1 -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/5.3.1/arm-linux-gnueabihf -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include/c++/5.3.1/backward -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/5.3.1/include -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/lib/gcc/arm-linux-gnueabihf/5.3.1/include-fixed -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/include -I/home/linyn/imx6/4.1/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/arm-linux-gnueabihf/libc/usr/include watchdogthread.h -o moc_watchdogthread.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
@@ -1311,7 +1311,35 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/qdesktopwidget.h \
 		/usr/local/QtEmbedded-5.6.0-arm/include/QtGui/qguiapplication.h \
 		/usr/local/QtEmbedded-5.6.0-arm/include/QtGui/qinputmethod.h \
-		ui_mainwindow.h
+		ui_mainwindow.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtCore/QVariant \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/QAction \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/qaction.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/qactiongroup.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/QButtonGroup \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/qbuttongroup.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/QHeaderView \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/qheaderview.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/QLabel \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/qlabel.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/QMenuBar \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/qmenubar.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/qmenu.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/QPushButton \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/qpushbutton.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/qabstractbutton.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/QStatusBar \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/qstatusbar.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/QTextEdit \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/qtextedit.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtGui/qtextdocument.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtGui/qtextoption.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtGui/qtextcursor.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtGui/qtextformat.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtGui/qpen.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/QToolBar \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/qtoolbar.h \
+		/usr/local/QtEmbedded-5.6.0-arm/include/QtWidgets/QWidget
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o mainwindow.cpp
 
 watchdogthread.o: watchdogthread.cpp watchdogthread.h \
