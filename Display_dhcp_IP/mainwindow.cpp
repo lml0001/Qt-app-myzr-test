@@ -33,7 +33,7 @@ QString get_ip(const char *ifname)
 }
 int gpio_value[8];
 int spi_fd[2];
-const char spi_dev[2][32] = {"/dev/spidev0.0","/dev/spidev1.0"};
+char spi_dev[2][32] = {"/dev/spidev0.0","/dev/spidev1.0"};
 uint8_t mode = 0;
 uint8_t bits = 8;
 uint32_t speed = 500000;
@@ -189,7 +189,7 @@ void init_gpio_switch()
 
 }
 
-int init_sx1278_spi(int spi_fd, char * spi_dev)
+int init_sx1278_spi(int &spi_fd, char * spi_dev)
 {
     int ret = 0;
     spi_fd = open(spi_dev, O_RDWR);
@@ -252,9 +252,9 @@ int spi_transfer(int spi_fd,uint8_t tx[],uint8_t rx[],uint16_t len)
     tr.tx_buf = (unsigned long)tx;
     tr.rx_buf = (unsigned long)rx;
     tr.len = len;
-    tr.delay_usecs = delay;
-    tr.speed_hz = speed;
-    tr.bits_per_word = bits;
+    tr.delay_usecs = 0;
+    tr.speed_hz = 500000;
+    tr.bits_per_word = 8;
     ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
     if (ret < 1)
     {
@@ -404,6 +404,37 @@ int sx1278_init_lora(int spi_fd)
     }
 
 }
+int sx1278_LoRaEntryRx(int spi_fd)
+{
+    int ret;
+    uint8_t tx[] = {
+        0x40|0x80,0x01, //DIO0=00, DIO1=00, DIO2=00, DIO3=01  DIO0=00--RXDONE
+    };
+    uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x11|0x80; //Open RxDone interrupt & Timeout
+    tx[1] = 0x3f;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x12|0x80; //LoRaClearIrq
+    tx[1] = 0xff;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x0f&0x7f; //Read RxBaseAddr
+    tx[1] = 0xff;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    uint8_t rxaddr = rx[1];
+    tx[0] = 0x0d|0x80; //RxBaseAddr -> FiFoAddrPtr
+    tx[1] = rxaddr;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x01|0x80; //Continuous Rx Mode
+    tx[1] = 0x0d;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    if (ret < 1)
+    {
+        ret = -1;
+        return ret;
+    }
+    return ret;
+}
 std::string sx1278_lora_rx(int spi_fd)
 {
 
@@ -419,19 +450,8 @@ std::string get_sx1278_chipid(int spi_fd)
         0x42&0x7f, 0xFF
     };
     uint8_t rx[ARRAY_SIZE(tx)] = {0, };
-//    struct spi_ioc_transfer tr;  /* 这种写法一定要赋初值 */
-//    memset(&tr,0,sizeof(struct spi_ioc_transfer));
-//    tr.tx_buf = (unsigned long)tx;
-//    tr.rx_buf = (unsigned long)rx;
-//    tr.len = ARRAY_SIZE(tx);
-//    tr.delay_usecs = delay;
-//    tr.speed_hz = speed;
-//    tr.bits_per_word = bits;
-//    ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
-//    if (ret < 1)
-//    {
-
-//    }
+    struct spi_ioc_transfer tr;  /* 这种写法一定要赋初值 */
+    memset(&tr,0,sizeof(struct spi_ioc_transfer));
     spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
     char chipid_str[16];
     snprintf(chipid_str,4,"%.2X",rx[1]);
@@ -450,8 +470,8 @@ MainWindow::MainWindow(QWidget *parent,QApplication *a) :
     ui->setupUi(this);
     qDebug() << QSqlDatabase::drivers();//打印qt支持的数据库类型
     init_gpio_switch();
-    init_sx1278_spi(spi_fd[0], (char *)spi_dev[0]);
-    init_sx1278_spi(spi_fd[1], (char *)spi_dev[1]);
+    init_sx1278_spi(spi_fd[0], spi_dev[0]);
+    init_sx1278_spi(spi_fd[1], spi_dev[1]);
     std::string chipid = get_sx1278_chipid(spi_fd[0]);
     std::cout<<"spi_dev0 chipid: "<<chipid<<std::endl;
     chipid = get_sx1278_chipid(spi_fd[1]);
@@ -466,6 +486,7 @@ MainWindow::MainWindow(QWidget *parent,QApplication *a) :
     {
         std::cout<<"spi_dev1 init sx1278 lora failed ret: "<<spi_init_ret<<std::endl;
     }
+    sx1278_LoRaEntryRx(spi_fd[0]);
     db = QSqlDatabase::addDatabase("QMYSQL");
     db.setHostName("rm-2vcyj9v8ozxj7b2m4to.mysql.cn-chengdu.rds.aliyuncs.com");
     db.setDatabaseName("ejcdb");
