@@ -297,11 +297,15 @@ int sx1278_set_frequency(int spi_fd)
 {
     int ret;
     uint8_t tx[] = {
-        0x06|0x80, 0x85,/*434MHz @ 26m*/
-        0x07|0x80, 0x3b,
-        0x08|0x80, 0x13
+        0x06|0x80, 0x85 /*434MHz @ 26m*/
     };
     uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x07|0x80;
+    tx[1] = 0x3b;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x08|0x80;
+    tx[1] = 0x13;
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
     if (ret < 1)
     {
@@ -329,15 +333,27 @@ int sx1278_set_SpreadFactor(int spi_fd)
 {
     int ret;
     uint8_t tx[] = {
-        0x1d|0x80,0x68,    //Explicit Enable CRC Enable(0x02) & Error Coding rate 4/5(0x01), 4/6(0x02), 4/7(0x03), 4/8(0x04)
-        0x1e|0x80,0x97,    //SFactor &  LNA gain set by the internal AGC loop
-        0x26|0x80,0x08,     //LowDataRateOptimize en
-        0x1f|0x80,0xff,    //RegSymbTimeoutLsb Timeout = 0x3FF(Max)
-        0x20|0x80,0x00,     //RegPreambleMsb
-        0x21|0x80,0x10,     //RegPreambleLsb 8+4=12byte Preamble  16+4=20
-        0x41|0x80,0x01
+        0x1d|0x80,0x68    //Explicit Enable CRC Enable(0x02) & Error Coding rate 4/5(0x01), 4/6(0x02), 4/7(0x03), 4/8(0x04)
     };
     uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x1e|0x80;  //SFactor &  LNA gain set by the internal AGC loop
+    tx[1] = 0x97;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x26|0x80;  //LowDataRateOptimize e
+    tx[1] = 0x08;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x1f|0x80;  //RegSymbTimeoutLsb Timeout = 0x3FF(Max)
+    tx[1] = 0xff;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x20|0x80;  //RegPreambleMsb
+    tx[1] = 0x00;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x21|0x80;  //RegPreambleLsb 8+4=12byte Preamble  16+4=20
+    tx[1] = 0x10;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x41|0x80;  //RegDioMapping2 DIO5=00, DIO4=01
+    tx[1] = 0x01;
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
     if (ret < 1)
     {
@@ -350,11 +366,15 @@ int sx1278_set_Standby(int spi_fd)
 {
     int ret;
     uint8_t tx[] = {
-        0x01|0x80,0x09,     //Entry standby mode
-        0x4d|0x80,0x87,     //Tx for 20dBm
-        0x24|0x80,0xff      //RegHopPeriod NO FHSS
+        0x01|0x80,0x09     //Entry standby mode
     };
     uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x4d|0x80;  //Tx for 20dBm
+    tx[1] = 0x87;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x24|0x80;  //RegHopPeriod NO FHSS
+    tx[1] = 0xff;
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
     if (ret < 1)
     {
@@ -435,12 +455,114 @@ int sx1278_LoRaEntryRx(int spi_fd)
     }
     return ret;
 }
-std::string sx1278_lora_rx(int spi_fd)
+int sx1278_LoRaRxWaitStable(int spi_fd,uint8_t &state)
 {
-
+    int ret;
+    uint8_t tx[] = {
+        0x18&0x7f,0xff //Determine whether the state of stable Rx
+    };
+    uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    state = rx[1];
+    if (ret < 1)
+    {
+        ret = -1;
+        return ret;
+    }
+    return ret;
 }
-int sx1278_lora_tx(std::string &txbuf,int spi_fd)
+
+int sx1278_lora_rx(int spi_fd,std::string &msg)
 {
+    int ret;
+    uint8_t tx[] = {
+        0x10&0x7f,0xff //last packet addr
+    };
+    uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    uint8_t last_addr = rx[1];
+    tx[0] = 0x0d|0x80; //RxBaseAddr -> FiFoAddrPtr
+    tx[1] = last_addr;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x13&0x7f; //Number for received bytes
+    tx[1] = 0xff;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    uint8_t packet_size = rx[1];
+    uint8_t t_buf[512];
+    t_buf[0] = 0x00&0x7f;  //Read LR_RegFifo
+    memset(&t_buf[1],0xff,256);
+    uint8_t r_buf[512] = {0, };
+    memset(r_buf,0x00,512);
+    ret = spi_transfer(spi_fd,t_buf,r_buf,packet_size);
+    msg = (char *)&r_buf[1];
+    tx[0] = 0x12|0x80; //LoRaClearIrq
+    tx[1] = 0xff;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    if (ret < 1)
+    {
+        ret = -1;
+        return ret;
+    }
+    return ret;
+}
+int sx1278_LoRaEntryTx(int spi_fd,std::string &msg)
+{
+    int ret;
+    uint8_t tx[] = {
+        0x40|0x80,0x41     //DIO0=01, DIO1=00, DIO2=00, DIO3=01
+    };
+    uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x12|0x80; //LoRaClearIrq
+    tx[1] = 0xff;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x11|0x80;  //Open TxDone interrupt
+    tx[1] = 0xf7;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    uint8_t msglen = msg.length();
+    tx[0] = 0x22|0x80;  //RegPayloadLength  msglen
+    tx[1] = msglen;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x0e&0x7f;  //RegFiFoTxBaseAddr Read
+    tx[1] = 0xff;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    uint8_t tx_addr = rx[1];
+    tx[0] = 0x0d|0x80;  //RegFifoAddrPtr Set
+    tx[1] = tx_addr;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    if (ret < 1)
+    {
+        ret = -1;
+        return ret;
+    }
+    return ret;
+}
+int sx1278_lora_tx(std::string &msg,int spi_fd)
+{
+    int ret;
+    uint8_t t_buf[512];
+    t_buf[0] = 0x00|0x80;  //Write LR_RegFifo
+    if(msg.length()>255)
+    {
+        ret = -2;
+        return ret;
+    }
+    else {
+        memcpy(&t_buf[1],msg.c_str(),msg.length());
+        uint8_t r_buf[512] = {0, };
+        memset(r_buf,0x00,512);
+        ret = spi_transfer(spi_fd,t_buf,r_buf,msg.length());
+        uint8_t tx[] = {
+            0x01|0x80,0x0b     //Tx Mode
+        };
+        uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+        ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+        if (ret < 1)
+        {
+            ret = -1;
+            return ret;
+        }
+    }
 
 }
 std::string get_sx1278_chipid(int spi_fd)
