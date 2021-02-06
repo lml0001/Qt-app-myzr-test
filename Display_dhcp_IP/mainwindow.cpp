@@ -38,157 +38,6 @@ uint8_t mode = 0;
 uint8_t bits = 8;
 uint32_t speed = 500000;
 uint16_t delay = 0;
-void init_gpio_switch()
-{
-    int fd;
-    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_PIN_VAL_1 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_1));
-    close(fd);
-    fd = open(SYSFS_GPIO_RST_DIR_1, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
-    close(fd);
-    gpio_value[1 - 1] = open(SYSFS_GPIO_RST_VAL_1, O_RDWR);
-
-    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_PIN_VAL_2 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_2));
-    close(fd);
-    fd = open(SYSFS_GPIO_RST_DIR_2, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
-    close(fd);
-    gpio_value[2 - 1] = open(SYSFS_GPIO_RST_VAL_2, O_RDWR);
-
-    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_PIN_VAL_3 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_3));
-    close(fd);
-    fd = open(SYSFS_GPIO_RST_DIR_3, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
-    close(fd);
-    gpio_value[3 - 1] = open(SYSFS_GPIO_RST_VAL_3, O_RDWR);
-
-    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_PIN_VAL_4 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_4));
-    close(fd);
-    fd = open(SYSFS_GPIO_RST_DIR_4, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
-    close(fd);
-    gpio_value[4 - 1] = open(SYSFS_GPIO_RST_VAL_4, O_RDWR);
-
-    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_PIN_VAL_5 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_5));
-    close(fd);
-    fd = open(SYSFS_GPIO_RST_DIR_5, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_DIR_VAL_IN, sizeof(SYSFS_GPIO_RST_DIR_VAL_IN));
-    close(fd);
-    gpio_value[5 - 1] = open(SYSFS_GPIO_RST_VAL_5, O_RDONLY);
-    fd = open(SYSFS_GPIO_RST_EDGE_5,O_WRONLY);
-    write(fd, "rising", strlen("rising"));
-    close(fd);
-    std::thread interrupt_loop_dio1([]{
-    struct pollfd fds[1];
-    fds[0].fd = gpio_value[5 - 1];
-    fds[0].events  = POLLPRI;
-    while(1)
-    {
-        int ret;
-        char buff[256];
-        ret = poll(fds,1,-1);
-        if( ret == -1 )
-        {
-
-        }
-        if( fds[0].revents & POLLPRI)
-        {
-            ret = lseek(gpio_value[5 - 1],0,SEEK_SET);
-            if( ret == -1 )
-            {
-
-            }
-            std::cout<<"#########gpio5_value########"<<std::endl;
-            do
-            {
-                ret = read(gpio_value[5 - 1],buff,256);
-            }while(ret != 0);
-            if( ret == -1 )
-            {
-
-            }
-        }
-    }
-    });
-    interrupt_loop_dio1.detach();
-
-    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_PIN_VAL_6 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_6));
-    close(fd);
-    fd = open(SYSFS_GPIO_RST_DIR_6, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_DIR_VAL_IN, sizeof(SYSFS_GPIO_RST_DIR_VAL_IN));
-    close(fd);
-    gpio_value[6 - 1] = open(SYSFS_GPIO_RST_VAL_6, O_RDONLY);
-    fd = open(SYSFS_GPIO_RST_EDGE_6,O_WRONLY);
-    write(fd, "rising", strlen("rising"));
-    close(fd);
-    std::thread interrupt_loop_dio2([]{
-    struct pollfd fds[1];
-    fds[0].fd = gpio_value[6 - 1];
-    fds[0].events  = POLLPRI;
-    while(1)
-    {
-        int ret;
-        char buff[256];
-        ret = poll(fds,1,-1);
-        if( ret == -1 )
-        {
-
-        }
-        if( fds[0].revents & POLLPRI)
-        {
-            ret = lseek(gpio_value[6 - 1],0,SEEK_SET);
-            if( ret == -1 )
-            {
-
-            }
-            std::cout<<"#########gpio6_value########"<<std::endl;
-            do
-            {
-                ret = read(gpio_value[6 - 1],buff,256);
-            }while(ret != 0);
-            if( ret == -1 )
-            {
-
-            }
-        }
-    }
-    });
-    interrupt_loop_dio2.detach();
-
-    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_PIN_VAL_7 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_7));
-    close(fd);
-    fd = open(SYSFS_GPIO_RST_DIR_7, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
-    close(fd);
-    gpio_value[7 - 1] = open(SYSFS_GPIO_RST_VAL_7, O_RDWR);
-
-    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_PIN_VAL_8 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_8));
-    close(fd);
-    fd = open(SYSFS_GPIO_RST_DIR_8, O_WRONLY);
-    write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
-    close(fd);
-    gpio_value[8 - 1] = open(SYSFS_GPIO_RST_VAL_8, O_RDWR);
-    write(gpio_value[7 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    write(gpio_value[7 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    write(gpio_value[7 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
-    write(gpio_value[8 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    write(gpio_value[8 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    write(gpio_value[8 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
-
-}
-
 int init_sx1278_spi(int &spi_fd, char * spi_dev)
 {
     int ret = 0;
@@ -424,6 +273,21 @@ int sx1278_init_lora(int spi_fd)
     }
 
 }
+int sx1278_clear_irq(int spi_fd)
+{
+    int ret;
+    uint8_t tx[] = {
+        0x12|0x80,0xff //LoRaClearIrq
+    };
+    uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    if (ret < 1)
+    {
+        ret = -1;
+        return ret;
+    }
+    return ret;
+}
 int sx1278_LoRaEntryRx(int spi_fd)
 {
     int ret;
@@ -505,7 +369,7 @@ int sx1278_lora_rx(int spi_fd,std::string &msg)
     }
     return ret;
 }
-int sx1278_LoRaEntryTx(int spi_fd,std::string &msg)
+int sx1278_LoRaEntryTx(int spi_fd)
 {
     int ret;
     uint8_t tx[] = {
@@ -518,10 +382,6 @@ int sx1278_LoRaEntryTx(int spi_fd,std::string &msg)
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
     tx[0] = 0x11|0x80;  //Open TxDone interrupt
     tx[1] = 0xf7;
-    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
-    uint8_t msglen = msg.length();
-    tx[0] = 0x22|0x80;  //RegPayloadLength  msglen
-    tx[1] = msglen;
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
     tx[0] = 0x0e&0x7f;  //RegFiFoTxBaseAddr Read
     tx[1] = 0xff;
@@ -548,14 +408,18 @@ int sx1278_lora_tx(std::string &msg,int spi_fd)
         return ret;
     }
     else {
+        uint8_t msglen = msg.length();
+        uint8_t tx[] = {
+            0x22|0x80, msglen //RegPayloadLength  msglen
+        };
+        uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+        ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
         memcpy(&t_buf[1],msg.c_str(),msg.length());
         uint8_t r_buf[512] = {0, };
         memset(r_buf,0x00,512);
         ret = spi_transfer(spi_fd,t_buf,r_buf,msg.length());
-        uint8_t tx[] = {
-            0x01|0x80,0x0b     //Tx Mode
-        };
-        uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+        tx[0] = 0x01|0x80; //Tx mode
+        tx[1] = 0x0b;
         ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
         if (ret < 1)
         {
@@ -581,7 +445,165 @@ std::string get_sx1278_chipid(int spi_fd)
     return chipid;
 }
 int wdgflag = 0;
+void init_gpio_switch()
+{
+    int fd;
+    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_PIN_VAL_1 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_1));
+    close(fd);
+    fd = open(SYSFS_GPIO_RST_DIR_1, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
+    close(fd);
+    gpio_value[1 - 1] = open(SYSFS_GPIO_RST_VAL_1, O_RDWR);
 
+    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_PIN_VAL_2 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_2));
+    close(fd);
+    fd = open(SYSFS_GPIO_RST_DIR_2, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
+    close(fd);
+    gpio_value[2 - 1] = open(SYSFS_GPIO_RST_VAL_2, O_RDWR);
+
+    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_PIN_VAL_3 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_3));
+    close(fd);
+    fd = open(SYSFS_GPIO_RST_DIR_3, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
+    close(fd);
+    gpio_value[3 - 1] = open(SYSFS_GPIO_RST_VAL_3, O_RDWR);
+
+    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_PIN_VAL_4 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_4));
+    close(fd);
+    fd = open(SYSFS_GPIO_RST_DIR_4, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
+    close(fd);
+    gpio_value[4 - 1] = open(SYSFS_GPIO_RST_VAL_4, O_RDWR);
+
+    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_PIN_VAL_5 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_5));
+    close(fd);
+    fd = open(SYSFS_GPIO_RST_DIR_5, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_DIR_VAL_IN, sizeof(SYSFS_GPIO_RST_DIR_VAL_IN));
+    close(fd);
+    gpio_value[5 - 1] = open(SYSFS_GPIO_RST_VAL_5, O_RDONLY);
+    fd = open(SYSFS_GPIO_RST_EDGE_5,O_WRONLY);
+    write(fd, "rising", strlen("rising"));
+    close(fd);
+    std::thread interrupt_loop_dio1([]{
+    struct pollfd fds[1];
+    fds[0].fd = gpio_value[5 - 1];
+    fds[0].events  = POLLPRI;
+    while(1)
+    {
+        int ret;
+        char buff[256];
+        ret = poll(fds,1,-1);
+        if( ret == -1 )
+        {
+
+        }
+        if( fds[0].revents & POLLPRI)
+        {
+            ret = lseek(gpio_value[5 - 1],0,SEEK_SET);
+            if( ret == -1 )
+            {
+
+            }
+            std::cout<<"#########gpio5_value########"<<std::endl;
+            do
+            {
+                ret = read(gpio_value[5 - 1],buff,256);
+            }while(ret != 0);
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            sx1278_clear_irq(spi_fd[0]);
+            if( ret == -1 )
+            {
+
+            }
+        }
+    }
+    });
+    interrupt_loop_dio1.detach();
+
+    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_PIN_VAL_6 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_6));
+    close(fd);
+    fd = open(SYSFS_GPIO_RST_DIR_6, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_DIR_VAL_IN, sizeof(SYSFS_GPIO_RST_DIR_VAL_IN));
+    close(fd);
+    gpio_value[6 - 1] = open(SYSFS_GPIO_RST_VAL_6, O_RDONLY);
+    fd = open(SYSFS_GPIO_RST_EDGE_6,O_WRONLY);
+    write(fd, "rising", strlen("rising"));
+    close(fd);
+    std::thread interrupt_loop_dio2([]{
+    struct pollfd fds[1];
+    fds[0].fd = gpio_value[6 - 1];
+    fds[0].events  = POLLPRI;
+    while(1)
+    {
+        int ret;
+        char buff[256];
+        ret = poll(fds,1,-1);
+        if( ret == -1 )
+        {
+
+        }
+        if( fds[0].revents & POLLPRI)
+        {
+            ret = lseek(gpio_value[6 - 1],0,SEEK_SET);
+            if( ret == -1 )
+            {
+
+            }
+            std::cout<<"#########gpio6_value########"<<std::endl;
+            do
+            {
+                ret = read(gpio_value[6 - 1],buff,256);
+            }while(ret != 0);
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::string recv_msg =  "0";
+            ret = sx1278_lora_rx(spi_fd[1], recv_msg);
+            if( ret == -1 )
+            {
+                std::cout<<"#########sx1278 lora interrupt rx failed#########"<<std::endl;
+            }
+            else {
+                std::cout<<"#########sx1278 lora recv_msg: "<<recv_msg<<"########"<<std::endl;
+            }
+            sx1278_clear_irq(spi_fd[1]);
+        }
+    }
+    });
+    interrupt_loop_dio2.detach();
+
+    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_PIN_VAL_7 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_7));
+    close(fd);
+    fd = open(SYSFS_GPIO_RST_DIR_7, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
+    close(fd);
+    gpio_value[7 - 1] = open(SYSFS_GPIO_RST_VAL_7, O_RDWR);
+
+    fd = open(SYSFS_GPIO_EXPORT, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_PIN_VAL_8 ,sizeof(SYSFS_GPIO_RST_PIN_VAL_8));
+    close(fd);
+    fd = open(SYSFS_GPIO_RST_DIR_8, O_WRONLY);
+    write(fd, SYSFS_GPIO_RST_DIR_VAL_OUT, sizeof(SYSFS_GPIO_RST_DIR_VAL_OUT));
+    close(fd);
+    gpio_value[8 - 1] = open(SYSFS_GPIO_RST_VAL_8, O_RDWR);
+    write(gpio_value[7 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    write(gpio_value[7 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    write(gpio_value[7 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+    write(gpio_value[8 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    write(gpio_value[8 - 1], SYSFS_GPIO_RST_VAL_L, sizeof(SYSFS_GPIO_RST_VAL_L));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    write(gpio_value[8 - 1], SYSFS_GPIO_RST_VAL_H, sizeof(SYSFS_GPIO_RST_VAL_H));
+
+}
 MainWindow::MainWindow(QWidget *parent,QApplication *a) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -608,7 +630,8 @@ MainWindow::MainWindow(QWidget *parent,QApplication *a) :
     {
         std::cout<<"spi_dev1 init sx1278 lora failed ret: "<<spi_init_ret<<std::endl;
     }
-    sx1278_LoRaEntryRx(spi_fd[0]);
+    sx1278_LoRaEntryTx(spi_fd[0]);
+    sx1278_LoRaEntryRx(spi_fd[1]);
     db = QSqlDatabase::addDatabase("QMYSQL");
     db.setHostName("rm-2vcyj9v8ozxj7b2m4to.mysql.cn-chengdu.rds.aliyuncs.com");
     db.setDatabaseName("ejcdb");
@@ -718,6 +741,12 @@ void MainWindow::on_pushButton_clicked()
 {
     QString temperature_str;
     temperature_str = ui->textEdit_2->toPlainText();
+    std::string send_msg = temperature_str.toStdString();
+    int ret = sx1278_lora_tx(send_msg,spi_fd[0]);
+    if(ret < 0)
+    {
+        std::cout<<"#######sx1278 send failed###########"<<std::endl;
+    }
     QSqlQuery query;
     query.prepare("update hubtable SET `Temperature` = ? WHERE `HubName` = 'IMX6ULL-001'");
     query.addBindValue(temperature_str);
