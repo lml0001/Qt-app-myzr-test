@@ -631,7 +631,9 @@ MainWindow::MainWindow(QWidget *parent,QApplication *a) :
         std::cout<<"spi_dev1 init sx1278 lora failed ret: "<<spi_init_ret<<std::endl;
     }
     sx1278_LoRaEntryTx(spi_fd[0]);
+    sx1278_set_Standby(spi_fd[0]);
     sx1278_LoRaEntryRx(spi_fd[1]);
+    sx1278_set_Standby(spi_fd[1]);
     db = QSqlDatabase::addDatabase("QMYSQL");
     db.setHostName("rm-2vcyj9v8ozxj7b2m4to.mysql.cn-chengdu.rds.aliyuncs.com");
     db.setDatabaseName("ejcdb");
@@ -742,6 +744,7 @@ void MainWindow::on_pushButton_clicked()
     QString temperature_str;
     temperature_str = ui->textEdit_2->toPlainText();
     std::string send_msg = temperature_str.toStdString();
+    sx1278_set_Standby(spi_fd[0]);
     int ret = sx1278_lora_tx(send_msg,spi_fd[0]);
     if(ret < 0)
     {
