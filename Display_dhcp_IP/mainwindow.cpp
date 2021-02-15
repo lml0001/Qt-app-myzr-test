@@ -131,9 +131,12 @@ int sx1278_EntryLora(int spi_fd)
 {
     int ret;
     uint8_t tx[] = {
-        0x01|0x80, 0x88 /*sx1278 entry lora*/
+        0x4b|0x80, 0x09 //USE TCXO   1 External clipped sine TCXO AC-connected to XTA pin
     };
     uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x01|0x80;  /*sx1278 entry lora*/
+    tx[1] = 0x88;
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
     if (ret < 1)
     {
@@ -167,9 +170,15 @@ int sx1278_set_outpowerparameter(int spi_fd)
 {
     int ret;
     uint8_t tx[] = {
-        0x09|0x80,0xFF                   //20dbm
+        0x09|0x80,0xFF                   //Setting output power parameter  20dB
     };
     uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x0b|0x80;  //RegOcp,Close Ocp
+    tx[1] = 0x0b;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x0c|0x80;  //RegLNA,High & LNA Enable
+    tx[1] = 0x23;
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
     if (ret < 1)
     {
@@ -182,27 +191,36 @@ int sx1278_set_SpreadFactor(int spi_fd)
 {
     int ret;
     uint8_t tx[] = {
-        0x1d|0x80,0x68    //Explicit Enable CRC Enable(0x02) & Error Coding rate 4/5(0x01), 4/6(0x02), 4/7(0x03), 4/8(0x04)
+        0x1d|0x80,0x68    //Explicit Enable CRC Enable(0x02) & Error Coding rate 4/5(0x01), 4/6(0x02), 4/7(0x03), 4/8(0x04) #
     };
     uint8_t rx[ARRAY_SIZE(tx)] = {0, };
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
-    tx[0] = 0x1e|0x80;  //SFactor &  LNA gain set by the internal AGC loop
+    tx[0] = 0x1e|0x80;  //SFactor &  LNA gain set by the internal AGC loop #
     tx[1] = 0x97;
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
-    tx[0] = 0x26|0x80;  //LowDataRateOptimize e
+    tx[0] = 0x26|0x80;  //LowDataRateOptimize e #
     tx[1] = 0x08;
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
-    tx[0] = 0x1f|0x80;  //RegSymbTimeoutLsb Timeout = 0x3FF(Max)
+    tx[0] = 0x1f|0x80;  //RegSymbTimeoutLsb Timeout = 0x3FF(Max) #
     tx[1] = 0xff;
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
-    tx[0] = 0x20|0x80;  //RegPreambleMsb
+    tx[0] = 0x20|0x80;  //RegPreambleMsb #
     tx[1] = 0x00;
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
-    tx[0] = 0x21|0x80;  //RegPreambleLsb 8+4=12byte Preamble  16+4=20
+    tx[0] = 0x21|0x80;  //RegPreambleLsb 8+4=12byte Preamble  16+4=20 #
     tx[1] = 0x10;
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
-    tx[0] = 0x41|0x80;  //RegDioMapping2 DIO5=00, DIO4=01
+    tx[0] = 0x41|0x80;  //RegDioMapping2 DIO5=00, DIO4=01  #
     tx[1] = 0x01;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x01|0x80;  //Entry standby mode #
+    tx[1] = 0x09;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x4d|0x80;  //Tx for 20dBm #
+    tx[1] = 0x87;
+    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
+    tx[0] = 0x24|0x80;  //RegHopPeriod NO FHSS #
+    tx[1] = 0xff;
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
     if (ret < 1)
     {
@@ -215,15 +233,9 @@ int sx1278_set_Standby(int spi_fd)
 {
     int ret;
     uint8_t tx[] = {
-        0x01|0x80,0x09     //Entry standby mode
+        0x01|0x80,0x09     //Entry standby mode #
     };
     uint8_t rx[ARRAY_SIZE(tx)] = {0, };
-    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
-    tx[0] = 0x4d|0x80;  //Tx for 20dBm
-    tx[1] = 0x87;
-    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
-    tx[0] = 0x24|0x80;  //RegHopPeriod NO FHSS
-    tx[1] = 0xff;
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
     if (ret < 1)
     {
@@ -265,12 +277,6 @@ int sx1278_init_lora(int spi_fd)
         ret = -5;
         return ret;
     }
-    ret = sx1278_set_Standby(spi_fd);
-    if (ret < 1)
-    {
-        ret = -6;
-        return ret;
-    }
 
 }
 int sx1278_clear_irq(int spi_fd)
@@ -292,7 +298,7 @@ int sx1278_LoRaEntryRx(int spi_fd)
 {
     int ret;
     uint8_t tx[] = {
-        0x40|0x80,0x01, //DIO0=00, DIO1=00, DIO2=00, DIO3=01  DIO0=00--RXDONE
+        0x40|0x80,0x01 //DIO0=00, DIO1=00, DIO2=00, DIO3=01  DIO0=00--RXDONE
     };
     uint8_t rx[ARRAY_SIZE(tx)] = {0, };
     ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
@@ -357,11 +363,8 @@ int sx1278_lora_rx(int spi_fd,std::string &msg)
     memset(&t_buf[1],0xff,256);
     uint8_t r_buf[512] = {0, };
     memset(r_buf,0x00,512);
-    ret = spi_transfer(spi_fd,t_buf,r_buf,packet_size);
+    ret = spi_transfer(spi_fd,t_buf,r_buf,packet_size + 1);
     msg = (char *)&r_buf[1];
-    tx[0] = 0x12|0x80; //LoRaClearIrq
-    tx[1] = 0xff;
-    ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
     if (ret < 1)
     {
         ret = -1;
@@ -408,16 +411,17 @@ int sx1278_lora_tx(std::string &msg,int spi_fd)
         return ret;
     }
     else {
-        uint8_t msglen = msg.length();
+        uint8_t msglen_u8 = msg.length();
         uint8_t tx[] = {
-            0x22|0x80, msglen //RegPayloadLength  msglen
+            0x22|0x80, msglen_u8 //RegPayloadLength  msglen
         };
-        uint8_t rx[ARRAY_SIZE(tx)] = {0, };
+        uint8_t rx[ARRAY_SIZE(tx)] = {0};
         ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
         memcpy(&t_buf[1],msg.c_str(),msg.length());
-        uint8_t r_buf[512] = {0, };
+        uint8_t r_buf[512] = {0};
         memset(r_buf,0x00,512);
-        ret = spi_transfer(spi_fd,t_buf,r_buf,msg.length());
+        uint16_t msglen_u16 = msg.length();
+        ret = spi_transfer(spi_fd,t_buf,r_buf,msglen_u16 + 1);
         tx[0] = 0x01|0x80; //Tx mode
         tx[1] = 0x0b;
         ret = spi_transfer(spi_fd,tx,rx,ARRAY_SIZE(tx));
@@ -444,7 +448,7 @@ std::string get_sx1278_chipid(int spi_fd)
     std::string chipid(chipid_str);
     return chipid;
 }
-int wdgflag = 0;
+int gpioinitflag = 0;
 void init_gpio_switch()
 {
     int fd;
@@ -510,16 +514,15 @@ void init_gpio_switch()
             {
 
             }
-            std::cout<<"#########gpio5_value########"<<std::endl;
             do
             {
                 ret = read(gpio_value[5 - 1],buff,256);
             }while(ret != 0);
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            sx1278_clear_irq(spi_fd[0]);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            sx1278_clear_irq(spi_fd[1]);
+            std::cout<<"sx1278 lora tx interrupt"<<std::endl;
             if( ret == -1 )
             {
-
             }
         }
     }
@@ -556,22 +559,28 @@ void init_gpio_switch()
             {
 
             }
-            std::cout<<"#########gpio6_value########"<<std::endl;
             do
             {
                 ret = read(gpio_value[6 - 1],buff,256);
             }while(ret != 0);
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
             std::string recv_msg =  "0";
-            ret = sx1278_lora_rx(spi_fd[1], recv_msg);
+            ret = sx1278_lora_rx(spi_fd[0], recv_msg);
             if( ret == -1 )
             {
-                std::cout<<"#########sx1278 lora interrupt rx failed#########"<<std::endl;
+                std::cout<<"sx1278 lora interrupt rx failed"<<std::endl;
             }
             else {
-                std::cout<<"#########sx1278 lora recv_msg: "<<recv_msg<<"########"<<std::endl;
+                std::cout<<"sx1278 lora recv_msg: "<<recv_msg<<std::endl;
             }
-            sx1278_clear_irq(spi_fd[1]);
+            QSqlQuery query;
+            query.prepare("update hubtable SET `ChannelStatus` = ? WHERE `HubName` = 'IMX6ULL-001'");
+            QString channelstatus_str = QString::fromStdString(recv_msg);
+            query.addBindValue(channelstatus_str);
+            query.exec();
+            sx1278_clear_irq(spi_fd[0]);
+            sx1278_set_Standby(spi_fd[0]);
+            sx1278_LoRaEntryRx(spi_fd[0]);
         }
     }
     });
@@ -630,10 +639,11 @@ MainWindow::MainWindow(QWidget *parent,QApplication *a) :
     {
         std::cout<<"spi_dev1 init sx1278 lora failed ret: "<<spi_init_ret<<std::endl;
     }
-    sx1278_LoRaEntryTx(spi_fd[0]);
+    sx1278_LoRaEntryTx(spi_fd[1]);
     sx1278_set_Standby(spi_fd[0]);
-    sx1278_LoRaEntryRx(spi_fd[1]);
+    sx1278_LoRaEntryRx(spi_fd[0]);
     sx1278_set_Standby(spi_fd[1]);
+    gpioinitflag = 1;
     db = QSqlDatabase::addDatabase("QMYSQL");
     db.setHostName("rm-2vcyj9v8ozxj7b2m4to.mysql.cn-chengdu.rds.aliyuncs.com");
     db.setDatabaseName("ejcdb");
@@ -660,7 +670,6 @@ MainWindow::~MainWindow()
 void MainWindow::timerEvent(QTimerEvent *event)
 {
     if(event->timerId() == m_nTimerID0){
-        wdgflag = 0;
         ui->label_ipaddr->setStyleSheet("background-color: rgb(250, 0, 0);font-size:50px;color:blue");
         QString ip = get_ip("eth0");
         ui->label_ipaddr->setText(ip);
@@ -741,17 +750,15 @@ void MainWindow::timerEvent(QTimerEvent *event)
 
 void MainWindow::on_pushButton_clicked()
 {
-    QString temperature_str;
-    temperature_str = ui->textEdit_2->toPlainText();
-    std::string send_msg = temperature_str.toStdString();
-    sx1278_set_Standby(spi_fd[0]);
-    int ret = sx1278_lora_tx(send_msg,spi_fd[0]);
+    QString channelstatus_str;
+    channelstatus_str = ui->textEdit_2->toPlainText();
+    std::string send_msg = channelstatus_str.toStdString();
+    sx1278_LoRaEntryTx(spi_fd[1]);
+    sx1278_set_Standby(spi_fd[1]);
+    int ret = sx1278_lora_tx(send_msg,spi_fd[1]);
+    std::cout<<"send_msg: "<<send_msg<<std::endl;
     if(ret < 0)
     {
         std::cout<<"#######sx1278 send failed###########"<<std::endl;
     }
-    QSqlQuery query;
-    query.prepare("update hubtable SET `Temperature` = ? WHERE `HubName` = 'IMX6ULL-001'");
-    query.addBindValue(temperature_str);
-    query.exec();
 }
